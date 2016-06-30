@@ -67,15 +67,31 @@ public enum Phrase {
     }
 
     private Phrase(String defaultMessage, boolean categorized) {
-        this.defaultMessage = defaultMessage;
+        if(Global.messages.contains(name())) {
+		this.defaultMessage = Global.messages.getString(name());
+        }
+	    else {
+	        Global.messages.set(name(),defaultMessage);
+	        this.defaultMessage = defaultMessage;
+	        }
 
         this.categorized = categorized;
 
         message = defaultMessage + "";
     }
 
+	public static File msgFile;
+	public static FileConfiguration messages;
+
     public static void init(Fe instance) {
-        plugin = instance;
+          try{
+		  plugin = instance;
+		  msgFile = new File(plugin.getDataFolder(),"messages.yml");
+		  if(!msgFile.exists()){msgFile.createNewFile();}
+		  messages = YamlConfiguration.loadConfiguration(msgFile);
+		  for(Phrase p : Phrase.values()) {}
+		  messages.save(msgFile);
+		  }catch (IOException e) {e.printStackTrace();}
     }
 
     private String getMessage() {
